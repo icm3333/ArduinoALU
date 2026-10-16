@@ -6,6 +6,8 @@
 #include <cctype>
 #include <algorithm>
 
+// Utilizado um mapa para salvar mnmonicos junto com seu valor hex (em char).
+
 const std::map<std::string, char> ULA_Map = {
 	{"nA",     '0'}, {"AoBn",   '1'}, {"nAeB",   '2'}, {"zeroL",  '3'},
 	{"AeBn",   '4'}, {"nB",     '5'}, {"AxB",    '6'}, {"AenB",   '7'},
@@ -24,11 +26,13 @@ void rtrim(std::string &s) {
 	}).base(), s.end());
 }
 
+// Usa duas funcoes auxiliares para tirar espacos em branco do input.
 void trimLine(std::string &line){
 	rtrim(line);
 	ltrim(line);
 }
 
+// int to hex (como um char)
 char itoh(int i){
 	if (i >= 0 && i <= 9) return '0' + i;
 	if (i >= 10 && i <= 15) return 'A' + (i - 10);
@@ -39,6 +43,7 @@ int main(){
 	const std::string inputFile = "TESTEULA.ula";
 	const std::string outputFile= "TESTEULA.hex";
 
+	// cria objeto ifstream/ofstream para leitura e escrita de arquivos + verifica se foi aberto
 	std::ifstream input(inputFile);
 	if (!input.is_open()) return 1;
 
@@ -50,6 +55,7 @@ int main(){
 	std::string line;
 	size_t lineNum = 0;
 
+	// valores salvos na memoria
 	uint8_t x = 0, y = 0, instructionCount = 0;
 
 	while(std::getline(input, line)){
@@ -62,6 +68,7 @@ int main(){
 		}
 		if (line == "inicio:" || line == "fim.") continue;
 
+		// verifica index 0 para conteudo da linha, salva/executa se possivel.
 		if (line[0] == 'X'){
 			try{
 				size_t semicolonPos = line.rfind(';');
@@ -81,8 +88,9 @@ int main(){
 		}else if(line[0] == 'W'){
 			size_t semicolonPos = line.rfind(';');
 			std::string mnemonic = line.substr(2, semicolonPos - 2);
-			auto it = ULA_Map.find(mnemonic);
+			auto it = ULA_Map.find(mnemonic); // procura nmonico no map
 
+			// mnemonico invalido
 			if(it == ULA_Map.end()){
 				std::cout << "Weird mnemonic in line " << lineNum << std::endl;
 				continue;

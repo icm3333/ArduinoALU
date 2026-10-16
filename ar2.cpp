@@ -11,6 +11,7 @@ const int REG_X = 2;
 const int REG_Y = 3;
 const int memStart = 4;
 
+// estado atual da execucao
 enum State{
 	WAIT_LOAD,
 	WAIT_CONF,
@@ -21,7 +22,6 @@ enum State{
 State stateNow = WAIT_LOAD;
 
 int instructionsCount = 0;
-
 
 int charToHex(char c){
 	if(c >= '0' && c <= '9') return c - '0';
@@ -36,6 +36,7 @@ char hexToChar(int val){
 	return 'A' + (val-10);
 }
 
+// muda os leds para o valor recebido
 void updateLedState(int hex){
 	digitalWrite(LED_F3, (hex >> 3) & 0x01);
 	digitalWrite(LED_F2, (hex >> 2) & 0x01);
@@ -43,6 +44,7 @@ void updateLedState(int hex){
 	digitalWrite(LED_F0, (hex >> 0) & 0x01);
 }
 
+// realiza a operacao desejada e retorna o valor.
 int ULA(int A, int B, int S){
 	int ret;
 
@@ -69,6 +71,7 @@ int ULA(int A, int B, int S){
 	return (ret & 0x0F);
 }
 
+// carrega o input (.hex) para a memoria
 void load(String input){
 	input.trim();
 	if(input.length()==0) return;
@@ -97,6 +100,7 @@ void load(String input){
 
 	instructionsCount = pos - memStart;
 
+	printDump();
 	if(instructionsCount > 0){
 		Serial.print("loaded ");
 		Serial.print(instructionsCount);
@@ -104,10 +108,9 @@ void load(String input){
 		Serial.print("\n Start execution? (y/n) \n > ");
 		stateNow = WAIT_CONF;
 	}
-
-	printDump();
 }
 
+// exibe como pedido no enunciado -> | | | | |
 void printDump(){
 	Serial.print("->|");
 	for(int i=0; i<4; i++){
@@ -122,6 +125,7 @@ void printDump(){
 	Serial.println();
 }
 
+// executa a instrucao
 void exec(){
 	int pcNow = mem[REG_PC].toInt();
 
@@ -156,12 +160,13 @@ void setup(){
 	updateLedState(0000);
 }
 
+// funcao principal
 void loop(){
-	if(Serial.available() > 0){
-		if(stateNow == WAIT_LOAD){
+	if(Serial.available() > 0){        // verifica se recebeu algo serial.available retorna o numero de bytes disponiveis para leitura
+		if(stateNow == WAIT_LOAD){                // se o estado ainda estiver em WAIT_LOAD carrega para a memoria o conteudo
 			String input = Serial.readString();
 			load(input);
-		}else if(stateNow == WAIT_CONF){
+		}else if(stateNow == WAIT_CONF){  // espera a confirmacao do usuario (load start exec)
 			char answer = Serial.read();
 			if(answer == 'y' || answer == 'Y' || answer == 's' || answer == 'S'){
 				Serial.println("Starting execution");
