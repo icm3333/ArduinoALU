@@ -86,7 +86,7 @@ void load(String input){
 		if(c != ' ' && c != '\n'){
 			opc += c;
 			if(opc.length() == 3){
-				if(pos >= 100){
+				if(pos < 100){
 					mem[pos] = opc;
 					pos++;
 					opc = "";
