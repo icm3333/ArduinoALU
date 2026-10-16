@@ -47,12 +47,12 @@ int ULA(int A, int B, int S){
 	int ret;
 
 	switch(S & 0x0F){
-		case 0x0: ret = ~A;       	     break; // nA     A'
-		case 0x1: ret = ~(A | B); 	     break; // AoBn   (A+B)'
-		case 0x2: ret = ~A & B;   	     break; // nAeB   A' . B
+		case 0x0: ret = ~A;       			 break; // nA     A'
+		case 0x1: ret = ~(A | B); 			 break; // AoBn   (A+B)'
+		case 0x2: ret = ~A & B;   			 break; // nAeB   A' . B
 		case 0x3: ret = 0;                   break; // zeroL  0
 		case 0x4: ret = ~(A & B);            break; // AeBn   (A.B)'
-	        case 0x5: ret = ~B;                  break; // nB     B'
+	    case 0x5: ret = ~B;                  break; // nB     B'
 		case 0x6: ret = (~A & B) | (A & ~B); break; // AxB    A'.B + A.B' {a xor b}
 		case 0x7: ret = A & ~B;              break; // AenB   A.B'
 		case 0x8: ret = ~A | B;              break; // nAoB   A'+B
@@ -62,7 +62,7 @@ int ULA(int A, int B, int S){
 		case 0xC: ret = 1;                   break; // umL    1
 		case 0xD: ret = A | ~B;              break; // AonB   A+B'
 		case 0xE: ret = A | B;               break; // AoB    A+B
-                case 0xF: ret = A;                   break; // copiaA A
+	    case 0xF: ret = A;                   break; // copiaA A
 		default: ret=0;                      break;
 	}
 
@@ -86,9 +86,11 @@ void load(String input){
 		if(c != ' ' && c != '\n'){
 			opc += c;
 			if(opc.length() == 3){
-				mem[pos] = opc;
-				pos++;
-				opc = "";
+				if(pos >= 100){
+					mem[pos] = opc;
+					pos++;
+					opc = "";
+				}
 			}
 		}
 	}
@@ -99,9 +101,11 @@ void load(String input){
 		Serial.print("loaded ");
 		Serial.print(instructionsCount);
 		Serial.print(" instructions on memory");
-		Serial.print("\n Start execution? (y/n)");
+		Serial.print("\n Start execution? (y/n) \n > ");
 		stateNow = WAIT_CONF;
 	}
+
+	printDump();
 }
 
 void printDump(){
